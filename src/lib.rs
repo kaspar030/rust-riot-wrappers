@@ -99,7 +99,7 @@ pub mod saul;
 #[cfg(riot_module_shell)]
 pub mod shell;
 pub mod stdio;
-pub mod thread;
+//pub mod thread;
 // internally cfg-gated as it has a no-op implementation
 #[cfg(riot_module_gcoap)]
 pub mod gcoap;
@@ -121,7 +121,7 @@ pub mod adc;
 #[cfg(riot_module_ztimer)]
 pub mod ztimer;
 
-pub mod mutex;
+//pub mod mutex;
 #[cfg(riot_module_pthread)]
 pub mod rwlock;
 
