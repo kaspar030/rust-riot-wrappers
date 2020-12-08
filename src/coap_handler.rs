@@ -68,10 +68,20 @@ where
     }
 }
 
+trait MutexedHandler<T> {
+    fn try_lock(&self) -> Option<crate::mutex::MutexGuard<T>>;
+}
+
+impl<T> MutexedHandler<T> for crate::mutex::Mutex<T> {
+    fn try_lock(&self) -> Option<crate::mutex::MutexGuard<T>> {
+        crate::mutex::Mutex::try_lock(self)
+    }
+}
+
 /// Blanket implementation for mutex wrapped resources
 ///
 /// This is useful in combination with the defauilt implementation for Option as well.
-impl<'b, H> coap_handler::Handler for &'b crate::mutex::Mutex<H>
+impl<'b, H> coap_handler::Handler for &'b dyn MutexedHandler<H>
 where
     H: coap_handler::Handler,
 {
