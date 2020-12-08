@@ -94,12 +94,27 @@ unsafe fn inline_cast_ref_mut<A, B>(input: &mut A) -> &mut B {
     core::mem::transmute(input)
 }
 
+// riot-rs-core compatibility
+#[cfg(all(not(feature = "riot-rs-core"), riot_module_msg))]
+pub mod msg;
+#[cfg(not(feature = "riot-rs-core"))]
+pub mod mutex;
+#[cfg(not(feature = "riot-rs-core"))]
+pub mod thread;
+
+#[cfg(feature = "riot-rs-core")]
+pub use riot_rs_core::mutex;
+
+#[cfg(feature = "riot-rs-core")]
+mod riot_rs_core_compat;
+#[cfg(feature = "riot-rs-core")]
+pub use riot_rs_core_compat::thread;
+
 #[cfg(riot_module_saul)]
 pub mod saul;
 #[cfg(riot_module_shell)]
 pub mod shell;
 pub mod stdio;
-//pub mod thread;
 // internally cfg-gated as it has a no-op implementation
 #[cfg(riot_module_gcoap)]
 pub mod gcoap;
@@ -109,6 +124,7 @@ pub mod gnrc;
 pub mod gnrc_util;
 #[cfg(riot_module_periph_i2c)]
 pub mod i2c;
+
 #[cfg(riot_module_core_msg)]
 pub mod msg;
 
@@ -121,7 +137,6 @@ pub mod adc;
 #[cfg(riot_module_ztimer)]
 pub mod ztimer;
 
-//pub mod mutex;
 #[cfg(riot_module_pthread)]
 pub mod rwlock;
 
