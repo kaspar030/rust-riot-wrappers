@@ -47,7 +47,7 @@ embedded-nal-tcpextensions = { version = "0.1", optional = true }
 pin-utils = "0.1"
 
 # optional riot-rs-core support
-riot-rs-core = { optional = true }
+riot-rs-core = { version = "0.1.0", optional = true }
 
 [build-dependencies]
 shlex = "0.1.1"
