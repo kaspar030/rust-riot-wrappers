@@ -39,3 +39,13 @@ pub use stack_stats::{StackStats, StackStatsError};
 /// Error returned by PID methods when no thread with that PID exists
 #[derive(Debug)]
 pub struct NoSuchThread;
+
+pub(crate) mod pid_converted {
+    //! Converting the raw constants into consistently typed ones
+    use riot_sys as raw;
+
+    pub const KERNEL_PID_UNDEF: raw::kernel_pid_t = raw::KERNEL_PID_UNDEF as _;
+    pub const KERNEL_PID_FIRST: raw::kernel_pid_t = raw::KERNEL_PID_FIRST as _;
+    pub const KERNEL_PID_LAST: raw::kernel_pid_t = raw::KERNEL_PID_LAST as _;
+    pub const KERNEL_PID_ISR: raw::kernel_pid_t = raw::KERNEL_PID_ISR as _;
+}
