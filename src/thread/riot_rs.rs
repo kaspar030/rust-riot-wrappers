@@ -2,12 +2,12 @@ use cstr_core::{c_char, CStr};
 
 use riot_sys as raw;
 
-pub use riot_rs_core::thread::c::{
+pub use riot_sys::riot_rs_core::thread::c::{
     thread_get_status,
     thread_measure_stack_free,
     thread_status_t as Status,
 };
-pub use riot_rs_core::thread::{Pid, Thread, THREADS_NUMOF};
+pub use riot_sys::riot_rs_core::thread::{Pid, Thread, THREADS_NUMOF};
 
 use super::stack_stats::{StackStats, StackStatsError};
 
