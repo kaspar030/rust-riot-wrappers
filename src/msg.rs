@@ -10,7 +10,24 @@ use crate::thread::KernelPID;
 use core::marker::PhantomData;
 use core::mem::MaybeUninit;
 use riot_sys::libc;
-use riot_sys::{self, kernel_pid_t, msg_receive, msg_reply, msg_send, msg_send_receive, msg_t};
+
+#[cfg(not(marker_riot_rs))]
+use riot_sys::{
+    self,
+    kernel_pid_t,
+    msg_receive,
+    msg_reply,
+    msg_send,
+    msg_send_receive,
+    msg_t,
+    msg_t__bindgen_ty_1 as msg_content_t,
+};
+
+#[cfg(marker_riot_rs)]
+use riot_sys::riot_rs_core::thread::{
+    c::{msg_content_t, msg_receive, msg_reply, msg_send, msg_send_receive, msg_t},
+    Pid as kernel_pid_t,
+};
 
 #[cfg(feature = "with_msg_v2")]
 pub mod v2;
@@ -103,7 +120,10 @@ pub struct OpaqueMsg(msg_t);
 impl OpaqueMsg {
     pub fn receive() -> OpaqueMsg {
         let mut m: MaybeUninit<msg_t> = MaybeUninit::uninit();
+        #[cfg(not(marker_riot_rs))]
         let _ = unsafe { msg_receive(m.as_mut_ptr()) };
+        #[cfg(marker_riot_rs)]
+        let _ = unsafe { msg_receive(&mut *m.as_mut_ptr()) };
         OpaqueMsg(unsafe { m.assume_init() })
     }
 }
@@ -156,7 +176,7 @@ impl NumericMsg {
     pub fn new(type_: u16, value: u32) -> Self {
         NumericMsg(msg_t {
             type_,
-            content: riot_sys::msg_t__bindgen_ty_1 { value: value },
+            content: msg_content_t { value: value },
             ..msg_t::default()
         })
     }
@@ -205,7 +225,7 @@ where
         ContainerMsg {
             message: msg_t {
                 type_,
-                content: riot_sys::msg_t__bindgen_ty_1 {
+                content: msg_content_t {
                     ptr: unsafe { ::core::mem::transmute_copy(&value) },
                 },
                 ..msg_t::default()
