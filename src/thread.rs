@@ -18,14 +18,14 @@
 //! The right implementation is selected with help from the build system, similar to how std's
 //! platform dependent backends are selected.
 
-#[cfg(not(feature = "with_riot_rs"))]
+#[cfg(not(marker_riot_rs))]
 mod riot_c;
-#[cfg(not(feature = "with_riot_rs"))]
+#[cfg(not(marker_riot_rs))]
 pub use riot_c::*;
 
-#[cfg(feature = "with_riot_rs")]
+#[cfg(marker_riot_rs)]
 mod riot_rs;
-#[cfg(feature = "with_riot_rs")]
+#[cfg(marker_riot_rs)]
 pub use riot_rs::*;
 
 mod tokenparts;
