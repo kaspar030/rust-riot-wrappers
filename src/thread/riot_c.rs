@@ -1,7 +1,7 @@
 //! RIOT (C) thread implementation
 use riot_sys as raw;
 
-use super::{NoSuchThread, StackStats, StackStatsError};
+use super::{pid_converted, NoSuchThread, StackStats, StackStatsError};
 use crate::helpers::PointerToCStr;
 
 /// Offloaded tools for creation
@@ -13,16 +13,6 @@ pub use creation::{scope, spawn, CountedThread, CountingThreadScope};
 // Possible optimization: Make this NonZero
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct KernelPID(pub(crate) raw::kernel_pid_t);
-
-pub(crate) mod pid_converted {
-    //! Converting the raw constants into consistently typed ones
-    use riot_sys as raw;
-
-    pub const KERNEL_PID_UNDEF: raw::kernel_pid_t = raw::KERNEL_PID_UNDEF as _;
-    pub const KERNEL_PID_FIRST: raw::kernel_pid_t = raw::KERNEL_PID_FIRST as _;
-    pub const KERNEL_PID_LAST: raw::kernel_pid_t = raw::KERNEL_PID_LAST as _;
-    pub const KERNEL_PID_ISR: raw::kernel_pid_t = raw::KERNEL_PID_ISR as _;
-}
 
 mod status_converted {
     //! Converting the raw constants into consistently typed ones for use in match branches. If
