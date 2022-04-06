@@ -94,14 +94,11 @@ unsafe fn inline_cast_ref_mut<A, B>(input: &mut A) -> &mut B {
     core::mem::transmute(input)
 }
 
-// RIOT-rs compatibility
-#[cfg(all(not(feature = "with_riot_rs"), riot_module_msg))]
-pub mod msg;
-#[cfg(not(feature = "with_riot_rs"))]
+#[cfg(not(marker_riot_rs))]
 pub mod mutex;
 
-#[cfg(feature = "with_riot_rs")]
-pub use riot_rs_core::mutex;
+#[cfg(marker_riot_rs)]
+pub use riot_sys::riot_rs_core::mutex;
 
 pub mod thread;
 
