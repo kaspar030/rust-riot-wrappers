@@ -1,4 +1,4 @@
-use cstr::{c_char, CStr};
+use crate::helpers::PointerToCStr;
 
 use riot_sys as raw;
 
@@ -29,9 +29,7 @@ impl KernelPID {
             unsafe { Thread::get(self.0) }.name().map_or(None, |ptr| {
                 Some(
                     // safety: name() either returns a Some(valid pointer) or None
-                    unsafe { CStr::from_ptr(ptr as *const c_char) }
-                        .to_str()
-                        .unwrap(),
+                    unsafe { ptr.to_lifetimed_cstr()? }.to_str().ok(),
                 )
             })
         } else {
