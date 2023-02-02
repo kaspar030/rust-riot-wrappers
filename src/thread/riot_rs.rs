@@ -1,4 +1,4 @@
-use cstr_core::{c_char, CStr};
+use cstr::{c_char, CStr};
 
 use riot_sys as raw;
 
