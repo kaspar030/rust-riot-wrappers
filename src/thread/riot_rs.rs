@@ -27,10 +27,9 @@ impl KernelPID {
             // safety: pid checked right above.
             // it might be that this thread has ended already, though...
             unsafe { Thread::get(self.0) }.name().map_or(None, |ptr| {
-                Some(
-                    // safety: name() either returns a Some(valid pointer) or None
-                    unsafe { ptr.to_lifetimed_cstr()? }.to_str().ok(),
-                )
+                let ptr = ptr as *const u8;
+                // safety: name() either returns a Some(valid pointer) or None
+                unsafe { ptr.to_lifetimed_cstr()? }.to_str().ok()
             })
         } else {
             None
