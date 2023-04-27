@@ -2,12 +2,19 @@ use crate::helpers::PointerToCStr;
 
 use riot_sys as raw;
 
-pub use riot_sys::riot_rs_core::thread::c::{
+pub use riot_sys::riot_rs_core::c::thread::{
     thread_get_status,
     thread_measure_stack_free,
     thread_status_t as Status,
 };
-pub use riot_sys::riot_rs_core::thread::{Pid, Thread, THREADS_NUMOF};
+
+pub use riot_sys::riot_rs_core::thread::{
+    self,
+    is_valid_pid,
+    Thread,
+    ThreadId as Pid,
+    THREADS_NUMOF,
+};
 
 use super::stack_stats::{StackStats, StackStatsError};
 
@@ -16,54 +23,40 @@ pub struct KernelPID(pub Pid);
 
 impl KernelPID {
     pub fn new(pid: raw::kernel_pid_t) -> Option<Self> {
-        if Thread::pid_is_valid(pid) {
+        if is_valid_pid(pid) {
             Some(KernelPID { 0: pid })
         } else {
             None
         }
     }
+
+    fn is_valid(&self) -> bool {
+        is_valid_pid(self.0)
+    }
+
     pub fn get_name(&self) -> Option<&str> {
-        if Thread::pid_is_valid(self.0) {
+        if self.is_valid() {
+            // unimplemented in RIOT-rs
+            None
+
             // safety: pid checked right above.
             // it might be that this thread has ended already, though...
-            unsafe { Thread::get(self.0) }.name().map_or(None, |ptr| {
-                let ptr = ptr as *const u8;
-                // safety: name() either returns a Some(valid pointer) or None
-                unsafe { ptr.to_lifetimed_cstr()? }.to_str().ok()
-            })
+            // unsafe { Thread::get(self.0) }.name().map_or(None, |ptr| {
+            //     let ptr = ptr as *const u8;
+            //     // safety: name() either returns a Some(valid pointer) or None
+            //     unsafe { ptr.to_lifetimed_cstr()? }.to_str().ok()
+            // })
         } else {
             None
-        }
-    }
-    pub fn status(&self) -> Result<Status, ()> {
-        if Thread::pid_is_valid(self.0) {
-            // safety: pid checked right above.
-            Ok(unsafe { thread_get_status(Thread::get(self.0)) })
-        } else {
-            Err(())
         }
     }
 
-    fn thread(&self) -> Option<&Thread> {
-        if Thread::pid_is_valid(self.0) {
-            Some(unsafe { Thread::get(self.0) })
-        } else {
-            None
-        }
+    pub fn status(&self) -> Result<Status, ()> {
+        thread::get_state(self.0).map_or(Err(()), |status| Ok(status.into()))
     }
 
     pub fn stack_stats(&self) -> Result<StackStats, StackStatsError> {
-        let thread = self.thread().ok_or(StackStatsError::NoSuchThread)?;
-        return Ok(StackStats {
-            // This cast is relevant because different platforms (eg. native and arm) disagree on
-            // whether that's an i8 or u8 pointer. Could have made it c_char, but a) don't want to
-            // alter the signatures and b) it's easier to use on the Rust side with a clear type.
-            start: thread.stack_bottom() as _,
-            size: thread.stack_size() as _,
-            free: unsafe { thread_measure_stack_free(thread.stack_bottom() as _) },
-        });
-        // TODO: handle case where riot-rs-core doesn't have the info.
-        //return Err(StackStatsError::InformationUnavailable);
+        return Err(StackStatsError::InformationUnavailable);
     }
 }
 
@@ -98,9 +91,9 @@ impl Into<i16> for KernelPID {
 }
 
 pub fn sleep() {
-    Thread::sleep();
+    thread::sleep();
 }
 
 pub fn get_pid() -> KernelPID {
-    KernelPID(Thread::current_pid())
+    KernelPID(thread::current_pid().unwrap())
 }

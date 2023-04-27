@@ -24,9 +24,9 @@ use riot_sys::{
 };
 
 #[cfg(marker_riot_rs)]
-use riot_sys::riot_rs_core::thread::{
-    c::{msg_content_t, msg_receive, msg_reply, msg_send, msg_send_receive, msg_t},
-    Pid as kernel_pid_t,
+use riot_sys::riot_rs_core::{
+    c::msg::{msg_content_t, msg_receive, msg_reply, msg_send, msg_send_receive, msg_t},
+    thread::ThreadId as kernel_pid_t,
 };
 
 #[cfg(feature = "with_msg_v2")]
